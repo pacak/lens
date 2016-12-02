@@ -4,8 +4,8 @@
 module Main (main) where
 
 import Data.List ( nub )
-import Data.Version ( showVersion )
-import Distribution.Package ( PackageName(PackageName), Package, PackageId, InstalledPackageId, packageVersion, packageName )
+import Distribution.Version
+import Distribution.Package -- ( PackageId, InstalledPackageId, packageVersion, packageName )
 import Distribution.PackageDescription ( PackageDescription(), TestSuite(..) )
 import Distribution.Simple ( defaultMainWithHooks, UserHooks(..), simpleUserHooks )
 import Distribution.Simple.Utils ( rewriteFile, createDirectoryIfMissingVerbose, copyFiles )
@@ -15,6 +15,10 @@ import Distribution.Simple.LocalBuildInfo ( withLibLBI, withTestLBI, LocalBuildI
 import Distribution.Text ( display )
 import Distribution.Verbosity ( Verbosity, normal )
 import System.FilePath ( (</>) )
+
+import Data.List
+
+showVersion = intercalate "." . map show . versionNumbers
 
 main :: IO ()
 main = defaultMainWithHooks simpleUserHooks
@@ -50,8 +54,7 @@ generateBuildModule verbosity pkg lbi = do
         ]
   where
     formatdeps = map (formatone . snd)
-    formatone p = case packageName p of
-      PackageName n -> n ++ "-" ++ showVersion (packageVersion p)
+    formatone n = unPackageName (packageName n) ++ "-" ++ showVersion (packageVersion n)
 
 testDeps :: ComponentLocalBuildInfo -> ComponentLocalBuildInfo -> [(InstalledPackageId, PackageId)]
 testDeps xs ys = nub $ componentPackageDeps xs ++ componentPackageDeps ys
