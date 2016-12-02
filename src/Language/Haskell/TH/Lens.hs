@@ -963,7 +963,17 @@ _TySynInstD
       remitter _ = Nothing
 #endif
 
-#if MIN_VERSION_template_haskell(2,10,0)
+
+#if MIN_VERSION_template_haskell(2,12,0)
+_StandaloneDerivD :: Prism' Dec ((Maybe DerivStrategy), Cxt, Type)
+_StandaloneDerivD
+  = prism' reviewer remitter
+  where
+      reviewer (x, y, z) = StandaloneDerivD x y z
+      remitter (StandaloneDerivD x y z) = Just (x, y, z)
+      remitter _ = Nothing
+
+#elif MIN_VERSION_template_haskell(2,10,0)
 _StandaloneDerivD :: Prism' Dec (Cxt, Type)
 _StandaloneDerivD
   = prism' reviewer remitter
@@ -971,7 +981,9 @@ _StandaloneDerivD
       reviewer (x, y) = StandaloneDerivD x y
       remitter (StandaloneDerivD x y) = Just (x, y)
       remitter _ = Nothing
+#endif
 
+#if MIN_VERSION_template_haskell(2,10,0)
 _DefaultSigD :: Prism' Dec (Name, Type)
 _DefaultSigD
   = prism' reviewer remitter
@@ -999,7 +1011,56 @@ _ClosedTypeFamilyD
       remitter _ = Nothing
 #endif
 
-#if MIN_VERSION_template_haskell(2,11,0)
+#if MIN_VERSION_template_haskell(2,12,0)
+_DataD :: Prism' Dec (Cxt, Name, [TyVarBndr], Maybe Kind, [Con], [DerivClause])
+_DataD
+  = prism' reviewer remitter
+  where
+      reviewer (x, y, z, w, u, v) = DataD x y z w u v
+      remitter (DataD x y z w u v) = Just (x, y, z, w, u, v)
+      remitter _ = Nothing
+
+_NewtypeD :: Prism' Dec (Cxt, Name, [TyVarBndr], Maybe Kind, Con, [DerivClause])
+_NewtypeD
+  = prism' reviewer remitter
+  where
+      reviewer (x, y, z, w, u, v) = NewtypeD x y z w u v
+      remitter (NewtypeD x y z w u v) = Just (x, y, z, w, u, v)
+      remitter _ = Nothing
+
+_DataInstD :: Prism' Dec (Cxt, Name, [Type], Maybe Kind, [Con], [DerivClause])
+_DataInstD
+  = prism' reviewer remitter
+  where
+      reviewer (x, y, z, w, u, v) = DataInstD x y z w u v
+      remitter (DataInstD x y z w u v) = Just (x, y, z, w, u, v)
+      remitter _ = Nothing
+
+_NewtypeInstD :: Prism' Dec (Cxt, Name, [Type], Maybe Kind, Con, [DerivClause])
+_NewtypeInstD
+  = prism' reviewer remitter
+  where
+      reviewer (x, y, z, w, u, v) = NewtypeInstD x y z w u v
+      remitter (NewtypeInstD x y z w u v) = Just (x, y, z, w, u, v)
+      remitter _ = Nothing
+
+_DataFamilyD :: Prism' Dec (Name, [TyVarBndr], Maybe Kind)
+_DataFamilyD
+  = prism' reviewer remitter
+  where
+      reviewer (x, y, z) = DataFamilyD x y z
+      remitter (DataFamilyD x y z) = Just (x, y, z)
+      remitter _ = Nothing
+
+_OpenTypeFamilyD :: Prism' Dec TypeFamilyHead
+_OpenTypeFamilyD
+  = prism' reviewer remitter
+  where
+      reviewer = OpenTypeFamilyD
+      remitter (OpenTypeFamilyD x) = Just x
+      remitter _ = Nothing
+
+#elif MIN_VERSION_template_haskell(2,11,0)
 _DataD :: Prism' Dec (Cxt, Name, [TyVarBndr], Maybe Kind, [Con], Cxt)
 _DataD
   = prism' reviewer remitter
